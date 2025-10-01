@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OTP Login/Register</title>
+   <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h2>OTP Login/Register</h2>
+
+<div id="otpSection">
+  <input type="text" id="phone" placeholder="Enter phone" required>
+  <button id="sendOtp">Send OTP</button>
+  <br><br>
+  <input type="text" id="otp" placeholder="Enter OTP">
+  <button id="verifyOtp">Verify OTP</button>
+</div>
+
+<div id="registerSection" style="display:none;">
+  <h3>Register</h3>
+  <input type="text" id="name" placeholder="Name"><br>
+  <input type="email" id="email" placeholder="Email"><br>
+  <input type="text" id="regPhone" placeholder="Phone" readonly><br>
+  <button id="registerBtn">Register</button>
+</div>
+
+<script>
+  document.getElementById("sendOtp").onclick = async () => {
+    const phone = document.getElementById("phone").value;
+    const res = await fetch("/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+    alert(data.message);
+  };
+
+  document.getElementById("verifyOtp").onclick = async () => {
+  const phone = document.getElementById("phone").value;
+  const otp = document.getElementById("otp").value;
+
+  const res = await fetch("/verify-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone, otp })
+  });
+
+  const data = await res.json();
+
+  if (data.status === "existing") {
+    alert(data.message);
+  } else if (data.status === "new") {
+    alert(data.message);
+    document.getElementById("registerSection").style.display = "block";
+    document.getElementById("regPhone").value = phone;
+  } else if (data.status === "invalid") {
+    alert(data.message);
+    document.getElementById("otp").value = ""; // clear field
+  }
+};
+
+  document.getElementById("registerBtn").onclick = async () => {
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const phone = document.getElementById("regPhone").value;
+
+    const res = await fetch("/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, phone })
+    });
+
+    const data = await res.json();
+    alert(data.message);
+  };
+</script>
+</body>
+</html>
